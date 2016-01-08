@@ -54,7 +54,8 @@ plot(NDVI_LS8_cr)
 
 difference <- NDVI_LS8_cr-NDVI_LS5_cr
 plot(difference)
-
+(difference)
+?hist
 writeRaster(difference, filename="./output/NDVIdifference1990-2014.tif")
 
 
