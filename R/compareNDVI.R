@@ -19,8 +19,6 @@ LS5list
 brick(LS5list)
 
 
-?intersect
-
 # Landssat 5 = (band4 - band3) / (band4 + band3)
 # Landssat 8 = (band5 - band4) / (band5 + band4) 
 
@@ -29,13 +27,36 @@ in_LS5_B4="./data/LS5/LT51980241990098KIS00_sr_band4.tif"
 in_LS8_B4="./data/LS8/LC81970242014109LGN00_sr_band4.tif"
 in_LS8_B5="./data/LS8/LC81970242014109LGN00_sr_band5.tif"
 
-adf <- brick(in_LS5_B3)
-plot(adf)
+rasterlist_LS5 <- c(raster(in_LS5_B3), raster(in_LS5_B4))
+brick_LS5 <- brick(rasterlist_LS5)
 
-test <- (($in_LS5_B4(float) - in_LS5_B3(float)) / (in_LS5_B4(float) - in_LS5_B3(float)))
+rasterlist_LS8 <- c(raster(in_LS8_B4), raster(in_LS8_B5))
+brick_LS8 <- brick(rasterlist_LS8)
 
-plot(test)
+#brick_LS8
+#plot(brick_LS8[[1]])
 
-outputfile <- "LS5_NDVI.tif"
 
-gdal_calc.py -A $inputfile --A_band=4 -B $inputfile --B_band=3  --outfile=$outputfile  --calc="(A.astype(float)-B)/(A.astype(float)+B)" --type='Float32'
+
+#NDVI_LS5 <- (brick_LS5[[2]](float) - brick_LS5[[1]](float)) / (brick_LS5[[2]](float) + brick_LS5[[1]](float))
+NDVI_LS5 <- (brick_LS5[[2]] - brick_LS5[[1]]) / (brick_LS5[[2]] + brick_LS5[[1]])
+NDVI_LS8 <- (brick_LS8[[2]] - brick_LS8[[1]]) / (brick_LS8[[2]] + brick_LS8[[1]])
+
+NDVI_LS5
+NDVI_LS8
+
+inter_extend <- intersect(NDVI_LS5,NDVI_LS8)
+
+NDVI_LS5_cr <- crop(NDVI_LS5, inter_extend)
+NDVI_LS8_cr <- crop(NDVI_LS8, inter_extend)
+
+plot(NDVI_LS8_cr)
+
+difference <- NDVI_LS8_cr-NDVI_LS5_cr
+plot(difference)
+
+writeRaster(difference, filename="./output/NDVIdifference1990-2014.tif")
+
+
+
+
