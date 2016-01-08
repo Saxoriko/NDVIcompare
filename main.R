@@ -1,0 +1,2 @@
+source("R/compareNDVI.R")
+
