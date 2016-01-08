@@ -1,9 +1,5 @@
 library(raster)
 
-compareNDVI <- function(){
-	list.files(./data)
-}
-
 # untar lansat data
 untar("./data/LT51980241990098-SC20150107121947.tar.gz", exdir = "./data/LS5")
 untar("./data/LC81970242014109-SC20141230042441.tar.gz", exdir = "./data/LS8")
