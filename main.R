@@ -9,10 +9,14 @@
 rm(list = ls())  # Clear the workspace!
 ls() ## no objects left in the workspace
 
+# referring to functions in R folder
 source("R/ndviCalc.R")
 source("R/ndviFilt.R")
 
-# load the libraries
+# load the packages (On Windows)
+#install.packages("raster")
+
+# load the packages
 library(raster)
 
 # untar lansat data
@@ -54,19 +58,25 @@ NDVI_LS5_f3 <- overlay(x=NDVI_LS5_f, y=LS5_cr[[3]], fun=ndviFilt)
 NDVI_LS8_f3 <- overlay(x=NDVI_LS8_f, y=LS8_cr[[3]], fun=ndviFilt)
 
 # calculate difference
-difference <- abs(NDVI_LS5_f3-NDVI_LS8_f3)
-
-# show the differences
-plot(difference, col = gray.colors(20, start = 0.0, end = 0.9, gamma = 2.2, alpha = NULL))
+difference <- NDVI_LS8_f3-NDVI_LS5_f3
 
 # write output raster
 writeRaster(difference, filename="./output/NDVI_difference_1990-2014.tif", format="GTiff", overwrite=TRUE)
 
-# reprojecting and witing to output
-ndviLL5 <- projectRaster(NDVI_LS5_f3, crs='+proj=longlat')
-ndviLL8 <- projectRaster(NDVI_LS8_f3, crs='+proj=longlat')
-diffLL <- projectRaster(difference, crs='+proj=longlat')
+# reproject
+ndviLL5 <- projectRaster(NDVI_LS5_f3, crs='+proj=longlat', overwrite=TRUE)
+ndviLL8 <- projectRaster(NDVI_LS8_f3, crs='+proj=longlat', overwrite=TRUE)
+diffLL <- projectRaster(difference, crs='+proj=longlat', overwrite=TRUE)
 
-KML(x=ndviLL5, filename='./output/betuwe_NDVI_1990.kml')
-KML(x=ndviLL8, filename='./output/betuwe_NDVI_2014.kml')
-KML(x=diffLL, filename='./output/NDVI_difference_1990-2014.kml')
+# show the reprojected outputs
+plot(ndviLL5, col = gray.colors(20, start = 0.0, end = 0.9, gamma = 2.2, alpha = NULL))
+title(main = list("Vegetation in the Betuwe (NDVI 1990)", cex = 1.5, col = "green4", font = 3))
+plot(ndviLL8, col = gray.colors(20, start = 0.0, end = 0.9, gamma = 2.2, alpha = NULL))
+title(main = list("Vegetation in the Betuwe (NDVI 2014)", cex = 1.5, col = "green4", font = 3))
+plot(diffLL, col = gray.colors(20, start = 0.0, end = 0.9, gamma = 2.2, alpha = NULL))
+title(main = list("Vegetation growth in the Betuwe (NDVI: 1990-->2014)", cex = 1.5, col = "green4", font = 3))
+
+# write KML-files to output
+KML(x=ndviLL5, filename='./output/betuwe_NDVI_1990.kml', overwrite=TRUE)
+KML(x=ndviLL8, filename='./output/betuwe_NDVI_2014.kml', overwrite=TRUE)
+KML(x=diffLL, filename='./output/NDVI_difference_1990-2014.kml', overwrite=TRUE)
